@@ -1,0 +1,44 @@
+@import url(../../assets/common/input.scss);
+@import url(../../assets/common/button.scss);
+
+.home {
+  width: 90%;
+  height: auto;
+  margin: auto;
+  padding: 2em 0;
+
+  .btn {
+    width: 100%;
+  }
+
+  .rooms {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-around;
+    align-items: center;
+    .room{
+        width: 9em;
+        height: 9em;
+        background: #add8e6;
+        border-radius: 5px;
+        margin: 1em;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        grid-auto-rows: auto auto;
+        text-align: center;
+        &:hover{
+            background-color: rgb(220 230 236);
+        }
+        .access{
+            display: none;
+        }
+        &:hover .access{
+            display: block;
+            width: 9em;
+            height: 3em;
+        }
+    }  
+  }
+}

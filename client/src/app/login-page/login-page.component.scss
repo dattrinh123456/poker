@@ -1,0 +1,11 @@
+@import url(../../assets/common/input.scss);
+@import url(../../assets/common/button.scss);
+
+.login-page{
+    display: grid;
+    width: 50%;
+    margin: 10em auto;
+    gap: 1em;
+    text-align: center;
+    color: white;
+}
