@@ -1,1 +1,26 @@
-<p>poker-table works!</p>
+<div class="table">
+
+  <div class="players">
+    <div class="player" *ngFor="let item of players">
+      <div class="avatar"></div>
+      {{item.name}}
+      <div class="card">
+        <app-card [cards]="item.cards" ></app-card>
+      </div>
+    </div>
+
+  </div>
+  <div class="show-card">
+    <app-card [cards]="cards"  [isShow] = "true"></app-card>
+  </div>
+  <div class="user ">
+    {{user.name}}
+    <div class="box">
+      <div class="avatar"></div>
+      <app-card [isShow] = "true" [cards]="user.cards"></app-card>
+    </div>
+    <div class="call">
+      <button class="btn button-5" role="button" *ngFor="let item of buttons">{{item}}</button>
+    </div>
+  </div>
+</div>
