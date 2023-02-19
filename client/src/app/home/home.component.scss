@@ -3,7 +3,7 @@
 
 .home {
   width: 90%;
-  height: auto;
+  height: 100vh;
   margin: auto;
   padding: 2em 0;
 
@@ -50,10 +50,15 @@
   gap: 1em;
   background: #8b8686;
   border-radius: 7px;
-
+  color: #add8e6;
   .footer{
     display: flex;
     justify-content: space-between;
     gap: 1em;
   }
+}
+
+::ng-deep  .p-dialog .p-dialog-content {
+  background: none;
+  padding: 0;
 }

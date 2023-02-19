@@ -10,7 +10,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AuthGuardService } from './auth.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import {SliderModule} from 'primeng/slider';
 @NgModule({
   declarations: [
     AppComponent,
@@ -27,8 +31,11 @@ import { AuthGuardService } from './auth.service';
     HttpClientModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
+    ToastModule,
+    ConfirmDialogModule,
+    SliderModule,
   ],
-  providers: [],
+  providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -1,7 +1,7 @@
-<div class="card" (click)="isFlip = !isFlip">
+<div class="card" (click)="isFlip && isShow = !isShow">
   <img
     *ngFor="let card of cards"
-    [src]="'../../assets/cards/' + ( !isFlip && card && isShow ? card : 'back-card') + '.png'"
+    [src]="'../../assets/cards/' + (isShow && card  ? card : 'back-card') + '.png'"
     [alt]="card"
   />
 </div>

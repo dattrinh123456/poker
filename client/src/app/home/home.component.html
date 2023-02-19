@@ -2,20 +2,45 @@
   <button class="btn" (click)="display = !display">Create New Room</button>
   <div class="rooms">
     <div class="room" *ngFor="let item of rooms">
-      {{item.roomname}}
-      <button class="btn access">Join</button>
-      <button class="btn access">Delete</button>
+      {{ item.roomname }}
+      <button class="btn access" (click)="roomClicked(item)">Join</button>
+      <button class="btn access" *ngIf="user.id == item.createdBy" (click)="deleteRoom(item)">
+        Delete
+      </button>
     </div>
   </div>
 </div>
 
-<p-dialog [(visible)]="display" [closable] = "false" [formGroup]="formGroup">
+<p-dialog [(visible)]="display" [closable]="false" [formGroup]="formGroup" [showHeader]="false">
   <div class="dialog-create-room">
+    <h1>Create New Room</h1>
+
     <input type="text" pInputText placeholder="Enter room name" class="input" formControlName="roomname" />
     <input type="text" pInputText placeholder="password" class="input" formControlName="password" />
+    <input type="text" pInputText placeholder="coins for each user" class="input" formControlName="coin" />
     <div class="footer">
-      <button type="button" pButton autofocus class="btn" (click)="createRoom()">Create</button>
-      <button type="button" pButton class="btn" (click)="cancel()" >Cancel</button>
+      <button type="button" pButton autofocus class="btn" (click)="createRoom()">
+        Create
+      </button>
+      <button type="button" pButton class="btn" (click)="cancel('createRoom')">
+        Cancel
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+
+<p-dialog [(visible)]="display2" [closable]="false" [showHeader]="false">
+  <div class="dialog-create-room">
+    <h1>Enter password</h1>
+    <input type="text" pInputText placeholder="password" class="input" [(ngModel)]="passwordJoinRoom" />
+    <div class="footer">
+      <button type="button" pButton autofocus class="btn" (click)="joinRoom()">
+        Join
+      </button>
+      <button type="button" pButton class="btn" (click)="cancel('joinRoom')">
+        Cancel
+      </button>
     </div>
   </div>
 </p-dialog>

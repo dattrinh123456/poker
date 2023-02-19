@@ -1,44 +1,57 @@
-import { Component } from '@angular/core';
-import { AppService } from '../app.service';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HomeService } from '../home/home.service';
 
 @Component({
   selector: 'app-poker-table',
   templateUrl: './poker-table.component.html',
-  styleUrls: ['./poker-table.component.scss']
+  styleUrls: ['./poker-table.component.scss'],
 })
-export class PokerTableComponent {
-  buttons : String[] = ['check', 'call', 'raise', 'fold']
+export class PokerTableComponent implements OnInit {
+  buttons: String[] = ['check', 'call', 'raise', 'fold', 'all in'];
   players = [
     {
-      name:'dat1',
-      cards: ['1S','2S']
+      name: 'dat1',
+      cards: ['1S', '2S'],
     },
     {
-      name:'dat1',
-      cards: ['1S','2S']
+      name: 'dat1',
+      cards: ['1S', '2S'],
     },
     {
-      name:'dat1',
-      cards: ['1S','2S']
+      name: 'dat1',
+      cards: ['1S', '2S'],
     },
     {
-      name:'dat1',
-      cards: ['1S','2S']
+      name: 'dat1',
+      cards: ['1S', '2S'],
     },
     {
-      name:'dat1',
-      cards: ['1S','2S']
-    }
-  ]
-  user = {
-    name:'DAT',
-    cards:['2H','3H']
-  }
-  roomId = ''
-  cards = ['1C','13D','12H','11S','7C']
-  constructor(private appService:AppService){
-    // this.appService.sendMessage(this.roomId)
+      name: 'dat1',
+      cards: ['1S', '2S'],
+    },
+  ];
+  user: any = {};
+  room: any = {};
+  cards = ['1C', '13D', '12H', '11S', '7C'];
+  coin: number = 10;
+  isStart = false;
+  constructor(private homeService: HomeService, private route: ActivatedRoute) {
+    this.room.id = this.route.snapshot.paramMap.get('id') || '';
   }
 
+  ngOnInit(): void {
+    this.homeService.getSingleRoom(this.room.id).subscribe((res) => {
+      this.room = res;
+      this.user = {
+        name: res.createdBy,
+        coin: res.coin,
+        cards: ['', ''],
+      };
+    });
+  }
 
+  start() {
+    //start
+  }
 }

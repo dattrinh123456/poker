@@ -1,7 +1,10 @@
 <div class="poker-app">
-  <h1 class="logo">D'Poker
+  <h1 class="logo" (click)="backToHome()">
+    D'Poker
     <span class="user">{{ username || "" }}</span>
   </h1>
 
   <router-outlet></router-outlet>
 </div>
+
+<p-toast position="top-right" [baseZIndex]="5000" ></p-toast>

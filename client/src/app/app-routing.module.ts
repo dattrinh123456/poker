@@ -22,7 +22,7 @@ const routes: Routes = [
     canActivate: [AuthGuardService],
   },
   {
-    component: LoginPageComponent,
+    component: HomeComponent,
     path: '**',
     canActivate: [AuthGuardService],
   },
@@ -31,6 +31,5 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
-  providers:[AuthGuardService]
 })
 export class AppRoutingModule {}

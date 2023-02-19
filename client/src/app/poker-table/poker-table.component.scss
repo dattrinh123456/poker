@@ -1,9 +1,7 @@
 @import url(../../assets/common/button.scss);
 .table {
   background-image: url(../../assets/poker-table.jpg);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-position: center top;
+  background-position: center;
   height: 100%;
   display: grid;
   grid-template-rows: 1fr 3fr 1fr;
@@ -19,29 +17,43 @@
       justify-content: space-between;
       align-items: center;
     }
+    .slider {
+      margin: 2em 0px;
+    }
     .call {
       margin-top: 1em;
+      display: flex;
       .btn {
         color: black;
         text-transform: uppercase;
+        width: 5em;
       }
     }
   }
 
-  .show-card{
-    display: flex;
+  .show-card {
+    display: grid;
     margin: auto;
     align-items: center;
-
+    justify-content: center;
+    text-align: center;
+    gap: 5em;
+    color: bisque;
+    .btn {
+      width: 6em;
+      margin: auto;
+    }
   }
   .players {
-    width: 68%;
-    height: 12em;
+    width: 100%;
+    height: auto;
     margin: auto;
     display: flex !important;
     justify-content: space-between;
     align-items: center;
-    .player{
+    overflow-x: scroll;
+    scroll-behavior: auto;
+    .player {
       width: 100%;
       background-color: #e3dffd;
       border-radius: 10px;
@@ -49,7 +61,6 @@
       padding: 0.5em;
       text-align: center;
     }
-
   }
   .avatar {
     background-image: url(../../assets/icon2.png);
@@ -63,5 +74,5 @@
 }
 
 ::ng-deep .show-card img {
-    height: 8em!important;
+  height: 6em !important;
 }

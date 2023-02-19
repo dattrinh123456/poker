@@ -7,8 +7,8 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class CardComponent  implements OnInit{
   @Input() cards: String[] = []
+  @Input() isFlip:boolean = false
   @Input() isShow:boolean = false
-  isFlip = false
 
   constructor() {
   }

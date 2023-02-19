@@ -13,4 +13,16 @@ export class HomeService {
   getAllRooms(): Observable<any> {
     return this.http.get(environment.pokerURL + 'room');
   }
+
+  deleteRoom(id: any): Observable<any> {
+    return this.http.delete(environment.pokerURL + `room/${id}`);
+  }
+
+  updateRoom(id: string, payload: any): Observable<any> {
+    return this.http.put(environment.pokerURL + 'room/' + id, payload);
+  }
+
+  getSingleRoom(id: string): Observable<any> {
+    return this.http.get(environment.pokerURL + 'room/' + id);
+  }
 }

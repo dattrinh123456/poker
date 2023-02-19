@@ -16,12 +16,13 @@ export class AuthGuardService implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    const user = localStorage.getItem('username') || '';
-    if (!user) {
+    let user = localStorage.getItem('username') || '';
+    console.log(user,state)
+    if (!user && !state.url.includes('login')) {
       this.router.navigate(['/login']);
       return false
     }
-    if(state.url.includes('login')) {
+    if(user && state.url.includes('login')) {
       this.router.navigate(['/home']);
       return false
     }
