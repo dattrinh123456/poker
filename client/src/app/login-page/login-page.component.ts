@@ -7,11 +7,12 @@ import { Router } from '@angular/router';
   styleUrls: ['./login-page.component.scss']
 })
 export class LoginPageComponent {
-  
+  username:string = ''
   constructor(private router:Router){
 
   }
   join(){
+    localStorage.setItem('username',this.username)
     this.router.navigateByUrl('/home')
   }
 }
