@@ -15,7 +15,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: auto auto;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     .room{
         width: 9em;
@@ -39,6 +39,21 @@
             width: 9em;
             height: 3em;
         }
-    }  
+    }
+  }
+}
+
+.dialog-create-room{
+  display: grid;
+  height: auto;
+  padding: 2em;
+  gap: 1em;
+  background: #8b8686;
+  border-radius: 7px;
+
+  .footer{
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
   }
 }

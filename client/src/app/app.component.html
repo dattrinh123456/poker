@@ -1,4 +1,7 @@
 <div class="poker-app">
-  <h1 class="logo">D'Poker</h1>
+  <h1 class="logo">D'Poker
+    <span class="user">{{ username || "" }}</span>
+  </h1>
+
   <router-outlet></router-outlet>
 </div>

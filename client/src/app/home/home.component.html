@@ -1,10 +1,21 @@
 <div class="home">
-  <button class="btn">Create New Room</button>
+  <button class="btn" (click)="display = !display">Create New Room</button>
   <div class="rooms">
-    <div class="room" *ngFor="let item of [1,2,3,4,5,6]">
-      room1
+    <div class="room" *ngFor="let item of rooms">
+      {{item.roomname}}
       <button class="btn access">Join</button>
       <button class="btn access">Delete</button>
     </div>
   </div>
 </div>
+
+<p-dialog [(visible)]="display" [closable] = "false" [formGroup]="formGroup">
+  <div class="dialog-create-room">
+    <input type="text" pInputText placeholder="Enter room name" class="input" formControlName="roomname" />
+    <input type="text" pInputText placeholder="password" class="input" formControlName="password" />
+    <div class="footer">
+      <button type="button" pButton autofocus class="btn" (click)="createRoom()">Create</button>
+      <button type="button" pButton class="btn" (click)="cancel()" >Cancel</button>
+    </div>
+  </div>
+</p-dialog>

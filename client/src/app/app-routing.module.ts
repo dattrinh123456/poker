@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule,  Routes } from '@angular/router';
+import { AuthGuardService } from './auth.service';
 import { HomeComponent } from './home/home.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PokerTableComponent } from './poker-table/poker-table.component';
@@ -7,24 +8,29 @@ import { PokerTableComponent } from './poker-table/poker-table.component';
 const routes: Routes = [
   {
     component: LoginPageComponent,
-    path: 'login'
+    path: 'login',
+    canActivate: [AuthGuardService],
   },
   {
     component: HomeComponent,
-    path: 'home'
+    path: 'home',
+    canActivate: [AuthGuardService],
   },
   {
     component: PokerTableComponent,
-    path: 'room/:id'
+    path: 'room/:id',
+    canActivate: [AuthGuardService],
   },
   {
     component: LoginPageComponent,
-    path: '**'
-  }
+    path: '**',
+    canActivate: [AuthGuardService],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers:[AuthGuardService]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
