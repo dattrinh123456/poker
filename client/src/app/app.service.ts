@@ -1,15 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { environment } from 'src/environments/environment';
 @Injectable({ providedIn: 'root' })
 export class AppService {
-  // private socket: Socket;
+  private socket: Socket;
 
-  // constructor(private http: HttpClient) {
-  //   this.socket = io(environment.socketURL);
-  // }
+  constructor(private http: HttpClient) {
+    this.socket = io(environment.serverURL);
+  }
 
+
+  start(id: string) {
+    this.socket.emit('start', id)
+  }
+
+  joinRoom(id : string) {
+    this.socket.emit('joimroom',id)
+  }
   // // EMITTER
   // sendMessage(msg: string) {
   //   this.socket.emit('sendMessage', { message: msg });
@@ -22,20 +30,5 @@ export class AppService {
   //       observer.next(msg);
   //     });
   //   });
-  // }
-
-  // createNewRoom(data: object): Observable<any> {
-  //   return this.http.post(
-  //     environment.pokerURL + 'room',
-  //     addDateToPayload(data)
-  //   );
-  // }
-
-  // getAllRoom():Observable<any> {
-  //   return this.http.get(environment.pokerURL+ 'room')
-  // }
-
-  // deleteRoom(id:string):Observable<any> {
-  //   return this.http.delete(environment.pokerURL+ `room/${id}`)
   // }
 }

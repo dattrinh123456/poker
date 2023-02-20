@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AppService } from '../app.service';
+import { LoginPageService } from '../login-page/login-page.service';
 import { ToastService } from '../taost.service';
 import { HomeService } from './home.service';
 
@@ -24,17 +26,16 @@ export class HomeComponent implements OnInit {
   constructor(
     private homeService: HomeService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private loginSevice: LoginPageService,
+    private appService: AppService
   ) {}
 
   ngOnInit(): void {
     this.homeService.getAllRooms().subscribe((res) => {
       this.rooms = res;
     });
-    this.user = {
-      name: localStorage.getItem('username'),
-      id: localStorage.getItem('id'),
-    };
+    this.user = this.loginSevice.user;
   }
   createRoom() {
     if (this.rooms.find((x) => x.roomname == this.formGroup.value.roomname)) {
@@ -48,7 +49,7 @@ export class HomeComponent implements OnInit {
       cardsHaveChosen: [...new Array(52)].map((x, index) => index + 1),
       pot: 0,
       users: [this.user],
-      createdBy: localStorage.getItem('id'),
+      createdBy: this.user.id,
     };
     this.homeService.createRoom(payload).subscribe((res) => {
       this.rooms.push(res);
@@ -74,9 +75,13 @@ export class HomeComponent implements OnInit {
             users: [...this.roomIsChosen.users, this.user],
           })
           .subscribe((res) => {
+            this.appService.joinRoom(this.roomIsChosen.id);
             this.router.navigateByUrl('room/' + this.roomIsChosen.id);
           });
-      else this.router.navigateByUrl('room/' + this.roomIsChosen.id);
+      else {
+        this.appService.joinRoom(this.roomIsChosen.id);
+        this.router.navigateByUrl('room/' + this.roomIsChosen.id);
+      }
     } else this.toastService.showError('The password is wrong!');
   }
 

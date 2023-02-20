@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 
 @Injectable({
-  providedIn:'root'
+  providedIn: 'root',
 })
 export class AuthGuardService implements CanActivate {
   constructor(private router: Router) {}
@@ -16,15 +16,14 @@ export class AuthGuardService implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    let user = localStorage.getItem('username') || '';
-    console.log(user,state)
-    if (!user && !state.url.includes('login')) {
+    let user: any = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user?.name && !state.url.includes('login')) {
       this.router.navigate(['/login']);
-      return false
+      return false;
     }
-    if(user && state.url.includes('login')) {
+    if (user.name && state.url.includes('login')) {
       this.router.navigate(['/home']);
-      return false
+      return false;
     }
     return true;
   }

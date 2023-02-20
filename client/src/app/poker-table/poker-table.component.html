@@ -13,16 +13,16 @@
   <div class="show-card">
     <app-card [cards]="cards" [isShow] = "true" *ngIf="isStart"></app-card>
     <h1 class="pot" *ngIf="isStart">{{room.pot}} $</h1>
-    <button class="btn button-5" role="button" (click)="start()" >Start</button>
+    <button class="btn button-5" role="button" (click)="start()" *ngIf="!isStart" >Start</button>
   </div>
   <div class="user">
-    {{user.name}} || {{user.coin}}
+    <p>{{user.name}} || {{user.coin}}</p>
     <div class="box">
       <div class="avatar"></div>
       <app-card [isShow] = "true" [isFlip]="true" [cards]="user.cards"></app-card>
     </div>
     <div class="slider">
-      <p-slider [(ngModel)]="coin"></p-slider>
+      <p-slider [(ngModel)]="coin"  [max]="user.coin"></p-slider>
       <span style="float: right;">{{coin}}</span>
     </div>
     <div class="call">

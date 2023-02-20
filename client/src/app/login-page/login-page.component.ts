@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { avatars } from 'src/assets/common/utils';
+import { LoginPageService } from './login-page.service';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
@@ -8,10 +9,23 @@ import { Router } from '@angular/router';
 })
 export class LoginPageComponent {
   username: string = '';
-  constructor(private router: Router) {}
+  images = avatars;
+  avatar: string = '';
+  constructor(private router: Router, private loginService: LoginPageService) {}
   join() {
-    localStorage.setItem('username', this.username);
-    localStorage.setItem('id', Date.now().toString());
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        name: this.username,
+        avatar: this.avatar,
+        id: Date.now().toString(),
+      })
+    );
+    this.loginService.setUser();
     this.router.navigateByUrl('/home');
+  }
+
+  choseAvatar(avatar: string) {
+    this.avatar = avatar;
   }
 }

@@ -17,6 +17,8 @@
     grid-template-columns: auto auto;
     justify-content: space-between;
     align-items: center;
+    height: 90%;
+    overflow-y: scroll;
     .room{
         width: 9em;
         height: 9em;

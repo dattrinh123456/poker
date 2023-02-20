@@ -1,7 +1,7 @@
 <div class="poker-app">
   <h1 class="logo" (click)="backToHome()">
     D'Poker
-    <span class="user">{{ username || "" }}</span>
+    <span class="user">{{user.name || ''}}</span>
   </h1>
 
   <router-outlet></router-outlet>

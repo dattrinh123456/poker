@@ -10,3 +10,18 @@ export function shuffle(array : Array<number>) {
 
   return array;
 }
+
+
+export const avatars = [
+  'anime1.jpg',
+  'anime2.jpg',
+  'anime3.jpg',
+  'anime4.jpg',
+  'anime5.jpg',
+  'anime6.jpg',
+  'anime7.jpg',
+  'anime8.jpg',
+  'anime9.jpg',
+  'anime10.jpg',
+
+]

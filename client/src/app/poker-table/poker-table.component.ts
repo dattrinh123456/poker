@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AppService } from '../app.service';
 import { HomeService } from '../home/home.service';
 
 @Component({
@@ -36,7 +37,11 @@ export class PokerTableComponent implements OnInit {
   cards = ['1C', '13D', '12H', '11S', '7C'];
   coin: number = 10;
   isStart = false;
-  constructor(private homeService: HomeService, private route: ActivatedRoute) {
+  constructor(
+    private homeService: HomeService,
+    private route: ActivatedRoute,
+    private appService: AppService
+  ) {
     this.room.id = this.route.snapshot.paramMap.get('id') || '';
   }
 
@@ -53,5 +58,7 @@ export class PokerTableComponent implements OnInit {
 
   start() {
     //start
+    this.isStart = !this.isStart;
+    this.appService.start(this.room.id)
   }
 }

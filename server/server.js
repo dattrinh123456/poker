@@ -1,24 +1,35 @@
 var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
-var io = require("socket.io")(server);
-
+var io = require("socket.io")(server, {
+  cors: {
+    origin: '*',
+  }
+});
 app.use(express.static(__dirname + "/public"));
 app.get("/", function (req, res, next) {
-  res.sendFile(__dirname + "/public/index.html");
+  res.end('')
 });
 
 io.on("connection", function (socket) {
-  const ids = socket.rooms;
-  socket.on("start", function (room) {
-    ids.forEach((id) => {
-      io.to(id).emit({
-        card1: rooms.cards.shift(),
-        card2: rooms.cards.shift(),
-      });
-    });
+  const rooms = socket.rooms;
+  console.log('rooms', rooms, socket)
+
+  socket.on("start", function (roomid) {
+    console.log(roomid, socket)
+    
+    // ids.forEach((id) => {
+    //   io.to(id).emit({
+    //     card1: rooms.cards.shift(),
+    //     card2: rooms.cards.shift(),
+    //   });
+    // });
     // update db
   });
+
+  socket.on('joinroom',(id)=>{
+    socket.join(id);
+  })
 
   socket.on("nextround", function (room) {
     if (room.round == 1) {
