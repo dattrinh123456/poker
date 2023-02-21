@@ -63,13 +63,11 @@
     }
   }
   .avatar {
-    background-image: url(../../assets/icon2.png);
-    background-repeat: no-repeat;
-    background-size: 100px 100px;
     margin: auto;
-    width: 100px;
-    height: 100px;
-    border-radius: 1em;
+    img {
+      width: 100px;
+      height: 100px;
+    }
   }
 }
 

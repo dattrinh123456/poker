@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 @Injectable({ providedIn: 'root' })
@@ -16,19 +17,21 @@ export class AppService {
   }
 
   joinRoom(id : string) {
-    this.socket.emit('joimroom',id)
+    console.log('id',id)
+    this.socket.emit('joinroom',id)
   }
-  // // EMITTER
-  // sendMessage(msg: string) {
-  //   this.socket.emit('sendMessage', { message: msg });
-  // }
 
-  // // HANDLER
-  // onNewMessage() {
-  //   return new Observable((observer) => {
-  //     this.socket.on('newMessage', (msg) => {
-  //       observer.next(msg);
-  //     });
-  //   });
-  // }
+  leftRoom(id: string){
+    console.log(id)
+    this.socket.emit('leftroom',id)
+  }
+
+  onNewMessage() {
+    return new Observable((observer) => {
+      this.socket.on('message', (msg) => {
+        console.log(msg)
+        observer.next(msg);
+      });
+    });
+  }
 }

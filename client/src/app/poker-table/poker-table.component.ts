@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map } from 'rxjs';
 import { AppService } from '../app.service';
 import { HomeService } from '../home/home.service';
+import { LoginPageService } from '../login-page/login-page.service';
 
 @Component({
   selector: 'app-poker-table',
@@ -10,28 +12,7 @@ import { HomeService } from '../home/home.service';
 })
 export class PokerTableComponent implements OnInit {
   buttons: String[] = ['check', 'call', 'raise', 'fold', 'all in'];
-  players = [
-    {
-      name: 'dat1',
-      cards: ['1S', '2S'],
-    },
-    {
-      name: 'dat1',
-      cards: ['1S', '2S'],
-    },
-    {
-      name: 'dat1',
-      cards: ['1S', '2S'],
-    },
-    {
-      name: 'dat1',
-      cards: ['1S', '2S'],
-    },
-    {
-      name: 'dat1',
-      cards: ['1S', '2S'],
-    },
-  ];
+  players: any = [];
   user: any = {};
   room: any = {};
   cards = ['1C', '13D', '12H', '11S', '7C'];
@@ -40,25 +21,55 @@ export class PokerTableComponent implements OnInit {
   constructor(
     private homeService: HomeService,
     private route: ActivatedRoute,
-    private appService: AppService
+    private appService: AppService,
+    private loginService: LoginPageService,
+    private router: Router
   ) {
     this.room.id = this.route.snapshot.paramMap.get('id') || '';
+    this.user = this.loginService.user;
   }
 
   ngOnInit(): void {
-    this.homeService.getSingleRoom(this.room.id).subscribe((res) => {
-      this.room = res;
-      this.user = {
-        name: res.createdBy,
-        coin: res.coin,
-        cards: ['', ''],
-      };
+    this.appService.onNewMessage().subscribe((res) => {
+      if (res == 'join' || res == 'left') {
+        this.getData();
+      }
     });
   }
 
   start() {
-    //start
     this.isStart = !this.isStart;
-    this.appService.start(this.room.id)
+    this.appService.start(this.room.id);
+  }
+
+  getData() {
+    this.homeService.getSingleRoom(this.room.id).subscribe((res) => {
+      this.room = res;
+      this.user = {
+        ...this.user,
+        coin: res.coin,
+        cards: ['', ''],
+      };
+
+      this.players = res.users
+        .filter((x: any) => x.id !== this.user.id)
+        .map((x: any) => ({
+          name: x.name,
+          cards: ['', ''],
+          avatar: x.avatar,
+        }));
+      console.log(this.players);
+    });
+  }
+
+  exit() {
+    this.homeService
+      .updateRoom(this.room.id, {
+        users: [...this.room.users.filter((x: any) => x.id !== this.user.id)],
+      })
+      .subscribe((res) => {
+        this.router.navigateByUrl('home');
+        this.appService.leftRoom(this.room.id);
+      });
   }
 }

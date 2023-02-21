@@ -17,11 +17,11 @@ export class HomeComponent implements OnInit {
   formGroup = new FormGroup({
     roomname: new FormControl(''),
     password: new FormControl(''),
-    coin: new FormControl(''),
   });
   rooms: Array<any> = [];
   user: any = {};
   passwordJoinRoom: string = '';
+  coins: number = 100;
   roomIsChosen: any = {};
   constructor(
     private homeService: HomeService,
@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit {
     this.homeService.createRoom(payload).subscribe((res) => {
       this.rooms.push(res);
       this.router.navigateByUrl('room/' + res.id);
+      this.appService.joinRoom(res.id);
       this.resetForm();
     });
   }
@@ -68,20 +69,21 @@ export class HomeComponent implements OnInit {
   }
 
   joinRoom() {
-    if (this.passwordJoinRoom == this.roomIsChosen.password) {
-      if (this.roomIsChosen.users.find((x: any) => x.id == this.user.id) < 0)
-        this.homeService
-          .updateRoom(this.roomIsChosen.id, {
-            users: [...this.roomIsChosen.users, this.user],
-          })
-          .subscribe((res) => {
-            this.appService.joinRoom(this.roomIsChosen.id);
-            this.router.navigateByUrl('room/' + this.roomIsChosen.id);
-          });
-      else {
-        this.appService.joinRoom(this.roomIsChosen.id);
-        this.router.navigateByUrl('room/' + this.roomIsChosen.id);
-      }
+    const isUserInRoom =
+      this.roomIsChosen.users.findIndex((x: any) => x.id == this.user.id) >= 0;
+    if (this.passwordJoinRoom == this.roomIsChosen.password && !isUserInRoom) {
+      this.homeService
+        .updateRoom(this.roomIsChosen.id, {
+          users: [...this.roomIsChosen.users, this.user],
+        })
+        .subscribe((res) => {
+          this.updateRoomUsers();
+        });
+    } else if (
+      this.passwordJoinRoom == this.roomIsChosen.password &&
+      isUserInRoom
+    ) {
+      this.updateRoomUsers();
     } else this.toastService.showError('The password is wrong!');
   }
 
@@ -103,5 +105,10 @@ export class HomeComponent implements OnInit {
   resetForm() {
     this.display = !this.display;
     this.formGroup.reset();
+  }
+
+  updateRoomUsers() {
+    this.appService.joinRoom(this.roomIsChosen.id);
+    this.router.navigateByUrl('room/' + this.roomIsChosen.id);
   }
 }

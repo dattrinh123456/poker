@@ -23,5 +23,4 @@ export const avatars = [
   'anime8.jpg',
   'anime9.jpg',
   'anime10.jpg',
-
 ]

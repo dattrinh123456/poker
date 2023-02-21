@@ -12,23 +12,16 @@ app.get("/", function (req, res, next) {
 });
 
 io.on("connection", function (socket) {
-  const rooms = socket.rooms;
-  console.log('rooms', rooms, socket)
+  const ids = socket.rooms;
+  console.log('rooms', ids)
 
   socket.on("start", function (roomid) {
-    console.log(roomid, socket)
-    
-    // ids.forEach((id) => {
-    //   io.to(id).emit({
-    //     card1: rooms.cards.shift(),
-    //     card2: rooms.cards.shift(),
-    //   });
-    // });
-    // update db
+    console.log(roomid)
   });
 
   socket.on('joinroom',(id)=>{
-    socket.join(id);
+    console.log(id)
+    io.to(id).emit("message",'join');
   })
 
   socket.on("nextround", function (room) {
@@ -39,6 +32,10 @@ io.on("connection", function (socket) {
     }else{
       // show result // update db
     }
+  });
+
+  socket.on('leftroom', (id)=> {
+    socket.to(id).emit("message","left");
   });
 });
 

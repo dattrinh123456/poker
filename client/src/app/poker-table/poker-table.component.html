@@ -1,8 +1,9 @@
 <div class="table">
-
   <div class="players">
     <div class="player" *ngFor="let item of players">
-      <div class="avatar"></div>
+      <div class="avatar">
+        <img [src]="'../../assets/images/' + item.avatar" alt="">
+      </div>
       {{item.name}}
       <div class="card">
         <app-card [cards]="item.cards" ></app-card>
@@ -14,11 +15,15 @@
     <app-card [cards]="cards" [isShow] = "true" *ngIf="isStart"></app-card>
     <h1 class="pot" *ngIf="isStart">{{room.pot}} $</h1>
     <button class="btn button-5" role="button" (click)="start()" *ngIf="!isStart" >Start</button>
+    <button class="btn button-5" role="button" (click)="exit()"  >Exit</button>
+
   </div>
   <div class="user">
     <p>{{user.name}} || {{user.coin}}</p>
     <div class="box">
-      <div class="avatar"></div>
+      <div class="avatar">
+        <img [src]="'../../assets/images/' + user.avatar" alt="">
+      </div>
       <app-card [isShow] = "true" [isFlip]="true" [cards]="user.cards"></app-card>
     </div>
     <div class="slider">
