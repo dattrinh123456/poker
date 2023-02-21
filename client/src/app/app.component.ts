@@ -8,18 +8,17 @@ import { LoginPageService } from './login-page/login-page.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  user:any ;
+  user: any;
 
-  constructor(private router: Router, private loginService: LoginPageService) {
-    this.loginService.getUser().subscribe(res=>{
-      this.user = res
-    })
-  }
+  constructor(private router: Router, private loginService: LoginPageService) {}
 
   ngOnInit(): void {
+    this.loginService.getUser().subscribe((res) => {
+      this.user = res;
+    });
   }
 
   backToHome() {
-    this.router.navigateByUrl('home')
+    this.router.navigateByUrl('home');
   }
 }

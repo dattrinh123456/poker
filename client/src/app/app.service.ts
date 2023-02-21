@@ -11,7 +11,6 @@ export class AppService {
     this.socket = io(environment.serverURL);
   }
 
-
   start(id: string) {
     this.socket.emit('start', id)
   }

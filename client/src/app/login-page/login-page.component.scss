@@ -4,11 +4,24 @@
 .login-page {
   display: grid;
   width: 80%;
-  margin: 10em auto;
-  gap: 1em;
+  margin: auto;
   text-align: center;
   color: white;
+  height: 50%;
+  gap : 0.25em;
+  padding-top: 8em;
+  .login-input{
+    position: relative;
+    width: 100%;
 
+    .error{
+      position: absolute;
+      top: 28%;
+      right: 1em;
+      z-index: 0;
+      color: black;
+    }
+  }
   .avatars {
     width: 100%;
     height: auto;

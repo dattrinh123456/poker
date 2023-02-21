@@ -2,11 +2,11 @@
   background: url("../assets/home-background.jpg");
   background-size: cover;
   width: 100%;
-  height: 100vh; // temp
   .logo {
     background-color: #217d97;
     text-align: center;
     position: relative;
+    height: 7%;
     .user {
       position: absolute;
       top: 0;
@@ -17,5 +17,9 @@
       align-items: center;
       font-size: 12px;
     }
+  }
+
+  .body{
+    height: 93%;
   }
 }

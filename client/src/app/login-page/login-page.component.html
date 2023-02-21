@@ -1,21 +1,50 @@
 <div class="login-page">
   <h1>Sign In</h1>
-  <input
-    type="text"
-    class="input username"
-    placeholder="username"
-    [(ngModel)]="username"
-  />
+  <div class="login-input">
+    <input
+      type="text"
+      class="input"
+      placeholder="username"
+      [(ngModel)]="username"
+    />
+    <span class="error" *ngIf="usernames.includes(username)"
+      >Username is existed!</span
+    >
+  </div>
+  <div class="login-input">
+    <input
+      type="password"
+      class="input"
+      placeholder="password"
+      [(ngModel)]="password"
+    />
+  </div>
+  <div class="login-input">
+    <input
+      type="password"
+      class="input"
+      placeholder="confirm password"
+      [(ngModel)]="confirmPassword"
+    />
+    <span class="error" *ngIf="confirmPassword && confirmPassword !== password"
+      >Wrong password</span
+    >
+  </div>
+
   <div class="avatars">
     <div class="avatar" *ngFor="let item of images">
       <img
         [src]="'../../assets/images/' + item"
-        [ngClass]="{ 'chosen': avatar == item}"
+        [ngClass]="{ chosen: avatar == item }"
         (click)="choseAvatar(item)"
       />
     </div>
   </div>
-  <button class="btn" (click)="join()" [disabled]="!username || !avatar">
+  <button
+    class="btn"
+    (click)="join()"
+    [disabled]="!username || !avatar || confirmPassword !== password"
+  >
     Join
   </button>
 </div>

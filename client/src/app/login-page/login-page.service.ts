@@ -1,27 +1,33 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class LoginPageService{
+export class LoginPageService {
   user$ = new BehaviorSubject<any>({});
-  user: any = null
-  constructor() {
-    this.user = this.getInfomationUser()
-    this.user$.next(this.user);
+
+  constructor(private http: HttpClient) {}
+
+  getInfomationUser(id: string) {
+    return this.http.get(environment.pokerURL + 'users/' + id);
   }
 
-  getInfomationUser() {
-    return JSON.parse(localStorage.getItem('user') || '{}');
+  setUser(user: any) {
+    this.user$.next(user);
   }
 
-  setUser(){
-    this.user$.next(this.user)
+  getUser() {
+    return this.user$.asObservable();
   }
 
-  getUser(){
-    return this.user$.asObservable()
+  createUser(user: object) {
+    return this.http.post(environment.pokerURL + 'users', user);
   }
 
+  getAllUsers() {
+    return this.http.get(environment.pokerURL + 'users');
+  }
 }

@@ -5,12 +5,14 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
+import { LoginPageComponent } from './login-page/login-page.component';
+import { LoginPageService } from './login-page/login-page.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuardService implements CanActivate {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private loginService: LoginPageService) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -22,7 +24,10 @@ export class AuthGuardService implements CanActivate {
       return false;
     }
     if (user.name && state.url.includes('login')) {
-      this.router.navigate(['/home']);
+      this.loginService.getInfomationUser(user.id).subscribe((res) => {
+        this.loginService.setUser(res);
+        this.router.navigate(['/home']);
+      });
       return false;
     }
     return true;

@@ -20,7 +20,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on('joinroom',(id)=>{
-    console.log(id)
+    console.log('join', id)
     io.to(id).emit("message",'join');
   })
 
@@ -35,6 +35,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on('leftroom', (id)=> {
+    console.log('left', id)
     socket.to(id).emit("message","left");
   });
 });

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map } from 'rxjs';
+import { map, of, switchMap } from 'rxjs';
 import { AppService } from '../app.service';
 import { HomeService } from '../home/home.service';
 import { LoginPageService } from '../login-page/login-page.service';
@@ -26,40 +26,45 @@ export class PokerTableComponent implements OnInit {
     private router: Router
   ) {
     this.room.id = this.route.snapshot.paramMap.get('id') || '';
-    this.user = this.loginService.user;
   }
 
   ngOnInit(): void {
-    this.appService.onNewMessage().subscribe((res) => {
-      if (res == 'join' || res == 'left') {
-        this.getData();
-      }
-    });
+    this.appService
+      .onNewMessage()
+      .pipe(
+        switchMap((msg: any) => {
+          if (msg == 'join' || msg == 'left') {
+            return this.homeService.getSingleRoom(this.room.id);
+          }
+          return of(null);
+        })
+      )
+      .subscribe((res) => {
+        this.room = res;
+        this.user = {
+          ...this.user,
+          coin: res.coin,
+          cards: ['', ''],
+        };
+
+        this.players = res.users
+          .filter((x: any) => x.id !== this.user.id)
+          .map((x: any) => ({
+            name: x.name,
+            cards: ['', ''],
+            avatar: x.avatar,
+          }));
+        console.log(this.players);
+      });
+
+      this.loginService.getUser().subscribe(res=>{
+        this.user = res
+      })
   }
 
   start() {
     this.isStart = !this.isStart;
     this.appService.start(this.room.id);
-  }
-
-  getData() {
-    this.homeService.getSingleRoom(this.room.id).subscribe((res) => {
-      this.room = res;
-      this.user = {
-        ...this.user,
-        coin: res.coin,
-        cards: ['', ''],
-      };
-
-      this.players = res.users
-        .filter((x: any) => x.id !== this.user.id)
-        .map((x: any) => ({
-          name: x.name,
-          cards: ['', ''],
-          avatar: x.avatar,
-        }));
-      console.log(this.players);
-    });
   }
 
   exit() {

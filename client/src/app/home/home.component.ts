@@ -27,7 +27,7 @@ export class HomeComponent implements OnInit {
     private homeService: HomeService,
     private toastService: ToastService,
     private router: Router,
-    private loginSevice: LoginPageService,
+    private loginService: LoginPageService,
     private appService: AppService
   ) {}
 
@@ -35,7 +35,10 @@ export class HomeComponent implements OnInit {
     this.homeService.getAllRooms().subscribe((res) => {
       this.rooms = res;
     });
-    this.user = this.loginSevice.user;
+
+    this.loginService.getUser().subscribe((res: any ) => {
+      this.user = res;
+    });
   }
   createRoom() {
     if (this.rooms.find((x) => x.roomname == this.formGroup.value.roomname)) {

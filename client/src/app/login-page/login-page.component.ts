@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { avatars } from 'src/assets/common/utils';
 import { LoginPageService } from './login-page.service';
@@ -7,21 +7,38 @@ import { LoginPageService } from './login-page.service';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   username: string = '';
   images = avatars;
   avatar: string = '';
+  password: string = '';
+  confirmPassword: string = '';
+  isUserExisted = false;
+  usernames: Array<string> = [];
+
   constructor(private router: Router, private loginService: LoginPageService) {}
+
+  ngOnInit(): void {
+    this.loginService.getAllUsers().subscribe((res: any) => {
+      this.usernames = res.map((x: any) => x.name);
+    });
+  }
+
   join() {
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
+    this.loginService
+      .createUser({
         name: this.username,
         avatar: this.avatar,
-        id: Date.now().toString(),
+        password: this.password,
+        rooms: [],
       })
-    );
-    this.loginService.setUser();
+      .subscribe((res: any) => {
+        this.loginService.setUser(res);
+        localStorage.setItem(
+          'user',
+          JSON.stringify({ name: res.name, id: res.id })
+        );
+      });
     this.router.navigateByUrl('/home');
   }
 
