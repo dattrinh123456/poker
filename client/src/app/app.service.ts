@@ -11,26 +11,34 @@ export class AppService {
     this.socket = io(environment.serverURL);
   }
 
-  start(id: string) {
-    this.socket.emit('start', id)
+  start(payload: object) {
+    this.socket.emit('start', payload);
   }
 
-  joinRoom(id : string) {
-    console.log('id',id)
-    this.socket.emit('joinroom',id)
+  joinRoom(id: string) {
+    console.log('join id', id);
+    this.socket.emit('joinroom', id);
   }
 
-  leftRoom(id: string){
-    console.log(id)
-    this.socket.emit('leftroom',id)
+  leftRoom(id: string) {
+    console.log('left id', id);
+    this.socket.emit('leftroom', id);
+  }
+
+  nextMove(type: any, payload: any) {
+    this.socket.emit('nextround', { type, payload });
   }
 
   onNewMessage() {
     return new Observable((observer) => {
       this.socket.on('message', (msg) => {
-        console.log(msg)
+        console.log('message', msg);
         observer.next(msg);
       });
     });
+  }
+
+  fetchRooms() {
+    this.socket.emit('fecthRoom');
   }
 }

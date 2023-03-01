@@ -1,7 +1,9 @@
 <div class="poker-app">
   <h1 class="logo" (click)="backToHome()">
     D'Poker
-    <span class="user">{{ user.name || "" }}</span>
+    <div class="user" *ngIf="user.avatar">
+      <img [src]="'../assets/images/' + user.avatar" (click)="logout()" />
+    </div>
   </h1>
 
   <div class="body">
@@ -10,3 +12,8 @@
 </div>
 
 <p-toast position="top-right" [baseZIndex]="5000"></p-toast>
+
+<p-confirmDialog
+  header="Do you want to log out ?"
+  icon="pi pi-exclamation-triangle"
+></p-confirmDialog>

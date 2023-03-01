@@ -1,9 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import {
+  combineLatest,
+  map,
+  of,
+  Subject,
+  Subscription,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
+import { shuffle, unsubscribe } from 'src/assets/common/utils';
 import { AppService } from '../app.service';
 import { LoginPageService } from '../login-page/login-page.service';
-import { ToastService } from '../taost.service';
+import { ToastService } from '../toast.service';
 import { HomeService } from './home.service';
 
 @Component({
@@ -11,18 +21,27 @@ import { HomeService } from './home.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   display: boolean = false;
   display2: boolean = false;
   formGroup = new FormGroup({
     roomname: new FormControl(''),
     password: new FormControl(''),
+    coins: new FormControl(100),
+    isStart: new FormControl(0),
+    cardsHaveChosen: new FormControl(JSON.stringify([])),
+    pot: new FormControl(0),
+    userTurn: new FormControl(0),
+    cardShowOnTable: new FormControl(JSON.stringify([])),
+    coinsForTurn: new FormControl(0),
+    isShowResult: new FormControl(0),
+    winner: new FormControl(JSON.stringify([])),
   });
   rooms: Array<any> = [];
   user: any = {};
   passwordJoinRoom: string = '';
-  coins: number = 100;
   roomIsChosen: any = {};
+  notifier = new Subject();
   constructor(
     private homeService: HomeService,
     private toastService: ToastService,
@@ -32,14 +51,44 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.homeService.getAllRooms().subscribe((res) => {
-      this.rooms = res;
-    });
+    this.appService
+      .onNewMessage()
+      .pipe(
+        switchMap((msg: any) => {
+          console.log('msg', msg);
+          if (msg == 'fetchroom') {
+            return this.homeService.getAllRooms();
+          }
+          return of(this.rooms);
+        }),
+        takeUntil(this.notifier)
+      )
+      .subscribe((res: any) => {
+        this.rooms = res;
+        setTimeout(() => {
+          this.checkHeight();
+        }, 0);
+      });
 
-    this.loginService.getUser().subscribe((res: any ) => {
-      this.user = res;
-    });
+    combineLatest([this.homeService.getAllRooms(), this.loginService.getUser()])
+      .pipe(takeUntil(this.notifier))
+      .subscribe(([rooms, user]: any) => {
+        this.rooms = rooms;
+        this.user = user;
+        setTimeout(() => {
+          this.checkHeight();
+        }, 0);
+      });
   }
+
+  ngAfterViewInit(): void {
+    this.checkHeight();
+  }
+
+  ngOnDestroy(): void {
+    unsubscribe(this.notifier);
+  }
+
   createRoom() {
     if (this.rooms.find((x) => x.roomname == this.formGroup.value.roomname)) {
       this.toastService.showError(
@@ -49,44 +98,55 @@ export class HomeComponent implements OnInit {
     }
     const payload = {
       ...this.formGroup.value,
-      cardsHaveChosen: [...new Array(52)].map((x, index) => index + 1),
-      pot: 0,
-      users: [this.user],
+      users: JSON.stringify([]),
       createdBy: this.user.id,
     };
+
     this.homeService.createRoom(payload).subscribe((res) => {
       this.rooms.push(res);
-      this.router.navigateByUrl('room/' + res.id);
-      this.appService.joinRoom(res.id);
       this.resetForm();
+      this.appService.fetchRooms();
     });
   }
 
   roomClicked(room: any) {
     if (room.createdBy === this.user.id) {
-      this.router.navigateByUrl('room/' + room.id);
-      return;
+      this.passwordJoinRoom = room.password;
     }
     this.display2 = !this.display2;
     this.roomIsChosen = room;
   }
 
   joinRoom() {
-    const isUserInRoom =
-      this.roomIsChosen.users.findIndex((x: any) => x.id == this.user.id) >= 0;
-    if (this.passwordJoinRoom == this.roomIsChosen.password && !isUserInRoom) {
+    if (this.passwordJoinRoom == this.roomIsChosen.password) {
       this.homeService
-        .updateRoom(this.roomIsChosen.id, {
-          users: [...this.roomIsChosen.users, this.user],
-        })
-        .subscribe((res) => {
+        .getSingleRoom(this.roomIsChosen.id)
+        .pipe(
+          switchMap((res: any) => {
+            return this.homeService.updateRoom(res.id, {
+              users: JSON.stringify([
+                ...res.users,
+                {
+                  id: this.user.id,
+                  name: this.user.name,
+                  cards: ['', ''],
+                  avatar: this.user.avatar,
+                  isCall: false,
+                  coins: 0,
+                  isFold: false,
+                  isWin: false,
+                  allCoins: 0,
+                  coinsForRound: 0,
+                  isCheck: false,
+                  isAllin: false,
+                },
+              ]),
+            });
+          })
+        )
+        .subscribe((res: any) => {
           this.updateRoomUsers();
         });
-    } else if (
-      this.passwordJoinRoom == this.roomIsChosen.password &&
-      isUserInRoom
-    ) {
-      this.updateRoomUsers();
     } else this.toastService.showError('The password is wrong!');
   }
 
@@ -94,6 +154,7 @@ export class HomeComponent implements OnInit {
     this.homeService.deleteRoom(room.id).subscribe((res) => {
       this.rooms = this.rooms.filter((x) => x.id !== room.id);
       this.toastService.showSuccess();
+      this.appService.fetchRooms();
     });
   }
 
@@ -111,7 +172,20 @@ export class HomeComponent implements OnInit {
   }
 
   updateRoomUsers() {
-    this.appService.joinRoom(this.roomIsChosen.id);
     this.router.navigateByUrl('room/' + this.roomIsChosen.id);
+  }
+
+  checkHeight() {
+    if (!window.location.href.includes('home')) return;
+    let roomsClass = document.getElementsByClassName(
+      'rooms'
+    )[0] as HTMLDivElement;
+    if (
+      roomsClass.clientHeight >=
+      document.getElementsByClassName('home')[0].clientHeight
+    ) {
+      roomsClass.style.height = '100%';
+      roomsClass.style.overflowY = 'scroll';
+    }
   }
 }

@@ -14,7 +14,9 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import {SliderModule} from 'primeng/slider';
+import { SliderModule } from 'primeng/slider';
+import { MenuModule } from 'primeng/menu';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,6 +36,7 @@ import {SliderModule} from 'primeng/slider';
     ToastModule,
     ConfirmDialogModule,
     SliderModule,
+    MenuModule,
   ],
   providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent],

@@ -37,6 +37,8 @@
       class="input"
       formControlName="password"
     />
+    <span>Default coins for Each Round : {{formGroup.value.coins}} </span>
+    <p-slider formControlName="coins" [min]="10" [max]="1000"></p-slider>
     <div class="footer">
       <button
         type="button"
@@ -64,9 +66,6 @@
       class="input"
       [(ngModel)]="passwordJoinRoom"
     />
-    <div></div>
-    <span>You want to borrow {{coins}} </span>
-    <p-slider [(ngModel)]="coins" [min]="0" [max]="1000"></p-slider>
     <div class="footer">
       <button type="button" pButton autofocus class="btn" (click)="joinRoom()">
         Join

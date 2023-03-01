@@ -75,6 +75,9 @@
               "browserTarget": "client:build:development"
             }
           },
+          "options": {
+            "browserTarget": "client:build"
+          },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {

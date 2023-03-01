@@ -1,50 +1,66 @@
 <div class="login-page">
-  <h1>Sign In</h1>
-  <div class="login-input">
-    <input
-      type="text"
-      class="input"
-      placeholder="username"
-      [(ngModel)]="username"
-    />
-    <span class="error" *ngIf="usernames.includes(username)"
-      >Username is existed!</span
-    >
-  </div>
-  <div class="login-input">
-    <input
-      type="password"
-      class="input"
-      placeholder="password"
-      [(ngModel)]="password"
-    />
-  </div>
-  <div class="login-input">
-    <input
-      type="password"
-      class="input"
-      placeholder="confirm password"
-      [(ngModel)]="confirmPassword"
-    />
-    <span class="error" *ngIf="confirmPassword && confirmPassword !== password"
-      >Wrong password</span
-    >
-  </div>
-
-  <div class="avatars">
-    <div class="avatar" *ngFor="let item of images">
-      <img
-        [src]="'../../assets/images/' + item"
-        [ngClass]="{ chosen: avatar == item }"
-        (click)="choseAvatar(item)"
+  <div class="container" [style.height]="isSignin ? '24em' : '30em'">
+    <h1>{{ isSignin ? "Sign In" : "Sign Up" }}</h1>
+    <div class="login-input">
+      <input
+        type="text"
+        class="input"
+        placeholder="username"
+        [(ngModel)]="username"
+      />
+      <span class="error" *ngIf="usernames.includes(username) && !isSignin"
+        >Username is existed!</span
+      >
+    </div>
+    <div class="login-input">
+      <input
+        type="password"
+        class="input"
+        placeholder="password"
+        [(ngModel)]="password"
       />
     </div>
+    <div class="login-input" *ngIf="!isSignin">
+      <input
+        type="password"
+        class="input"
+        placeholder="confirm password"
+        [(ngModel)]="confirmPassword"
+      />
+      <span
+        class="error"
+        *ngIf="confirmPassword && confirmPassword !== password && !isSignin"
+        >Wrong password</span
+      >
+    </div>
+
+    <div class="avatars" *ngIf="!isSignin">
+      <div class="avatar" *ngFor="let item of images">
+        <img
+          [src]="'../../assets/images/' + item"
+          [ngClass]="{ chosen: avatar == item }"
+          (click)="choseAvatar(item)"
+        />
+      </div>
+    </div>
+
+    <span class="error" *ngIf="isWrongAccount"
+      >username or password incorrect
+    </span>
+
+    <button
+      class="btn"
+      (click)="join(isSignin ? 'login' : 'register')"
+      [disabled]="
+        isSignin
+          ? !username || !password
+          : !username || !avatar || confirmPassword !== password
+      "
+    >
+      {{ isSignin ? "Login" : "Register" }}
+    </button>
+    <button class="btn" (click)="isSignin = !isSignin">
+      {{ isSignin ? "Create New Account" : "Back to login" }}
+    </button>
   </div>
-  <button
-    class="btn"
-    (click)="join()"
-    [disabled]="!username || !avatar || confirmPassword !== password"
-  >
-    Join
-  </button>
 </div>

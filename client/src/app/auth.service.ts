@@ -5,6 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
+import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { LoginPageService } from './login-page/login-page.service';
 
@@ -17,19 +18,25 @@ export class AuthGuardService implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean {
+  ): Observable<any> | boolean {
     let user: any = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user?.name && !state.url.includes('login')) {
       this.router.navigate(['/login']);
       return false;
     }
-    if (user.name && state.url.includes('login')) {
-      this.loginService.getInfomationUser(user.id).subscribe((res) => {
-        this.loginService.setUser(res);
-        this.router.navigate(['/home']);
-      });
-      return false;
+    if (!user?.name && state.url.includes('login')) {
+      return true;
     }
-    return true;
+
+    return this.loginService.getInfomationUser(user.id).pipe(
+      map((res: any) => {
+        this.loginService.setUser(res);
+        if (res?.name && state.url.includes('login')) {
+          this.router.navigate(['/home']);
+          return false;
+        }
+        return true;
+      })
+    );
   }
 }

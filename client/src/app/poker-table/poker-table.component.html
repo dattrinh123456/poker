@@ -1,37 +1,70 @@
 <div class="table">
   <div class="players">
-    <div class="player" *ngFor="let item of players">
+    <div
+      class="player"
+      *ngFor="let item of players"
+      [ngClass]="{ active: item.isCall && isStart }"
+    >
       <div class="avatar">
-        <img [src]="'../../assets/images/' + item.avatar" alt="">
+        <img [src]="'../../assets/images/' + item.avatar" alt="" />
       </div>
-      {{item.name}}
+      {{ item.name }}
       <div class="card">
-        <app-card [cards]="item.cards" ></app-card>
+        <app-card [cards]="item.cards"></app-card>
       </div>
     </div>
-
   </div>
   <div class="show-card">
-    <app-card [cards]="cards" [isShow] = "true" *ngIf="isStart"></app-card>
-    <h1 class="pot" *ngIf="isStart">{{room.pot}} $</h1>
-    <button class="btn button-5" role="button" (click)="start()" *ngIf="!isStart" >Start</button>
-    <button class="btn button-5" role="button" (click)="exit()"  >Exit</button>
-
+    <app-card
+      [cards]="cardShowOnTable"
+      [isShow]="true"
+      *ngIf="isStart"
+    ></app-card>
+    <h1 class="pot" *ngIf="isStart">{{ room.pot }} $</h1>
+    <button
+      class="btn button-5"
+      role="button"
+      (click)="start()"
+      *ngIf="!isStart && isHost"
+    >
+      Start
+    </button>
+    <button
+      class="btn button-5"
+      role="button"
+      (click)="exit()"
+      *ngIf="!isStart"
+    >
+      Exit
+    </button>
   </div>
+  <div *ngIf="isShowResult">{{ user.isWin ? "you win" : "you lose" }}</div>
   <div class="user">
-    <p>{{user.name}} || {{user.coin}}</p>
+    <p>{{ user.name }}</p>
     <div class="box">
       <div class="avatar">
-        <img [src]="'../../assets/images/' + user.avatar" alt="">
+        <img [src]="'../../assets/images/' + user.avatar" alt="" />
       </div>
-      <app-card [isShow] = "true" [isFlip]="true" [cards]="user.cards"></app-card>
+      <app-card [isShow]="true" [isFlip]="true" [cards]="user.cards"></app-card>
     </div>
-    <div class="slider">
-      <p-slider [(ngModel)]="coin"  [max]="user.coin"></p-slider>
-      <span style="float: right;">{{coin}}</span>
+    <div class="slider" *ngIf="user.isCall && isStart">
+      <p-slider
+        [(ngModel)]="coinRaise"
+        [max]="room.coins"
+        [min]="min"
+      ></p-slider>
+      <span style="float: right">{{ coinRaise }} || {{ room.coins }}</span>
     </div>
-    <div class="call">
-      <button class="btn" role="button" *ngFor="let item of buttons">{{item}}</button>
+    <div class="call" *ngIf="user.isCall && isStart">
+      <button
+        class="btn"
+        role="button"
+        *ngFor="let item of buttons"
+        (click)="call(item.type)"
+        [disabled]="item.isDisable"
+      >
+        {{ item.type }}
+      </button>
     </div>
   </div>
 </div>
