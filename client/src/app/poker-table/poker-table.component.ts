@@ -121,6 +121,7 @@ export class PokerTableComponent implements OnInit, OnDestroy {
             isCheck: x.isCheck,
             isAllin: x.isAllin,
             isActive: x.isActive,
+            isWatching: x.isWatching
           };
           if (x.id !== user.id) {
             this.players.push(u);
@@ -160,6 +161,7 @@ export class PokerTableComponent implements OnInit, OnDestroy {
       if (x.id == this.user.id) {
         x.isActive = false;
         x.isFold = true;
+        x.isWatching = false;
       }
       return x;
     });

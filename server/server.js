@@ -79,7 +79,8 @@ io.on("connection", function (socket) {
           allCoins: user.allCoins,
           isCheck: false,
           isAllin: false,
-          isActive: user.isActive,
+          isActive: user.isActive || user.isWatching,
+          isWatching : false
         }))
       ),
       cardsHaveChosen: JSON.stringify(cards),

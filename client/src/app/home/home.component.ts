@@ -140,9 +140,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             let indexUserinRoom = res.users.findIndex(
               (x: any) => x.id == this.user.id
             );
-            if (indexUserinRoom >= 0) {
-              res.users[indexUserinRoom].isActive = !res.isStart;
-            }
             return indexUserinRoom >= 0
               ? this.homeService.updateRoom(res.id, {
                   users: JSON.stringify([...res.users]),
@@ -162,7 +159,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                       allCoins: 0,
                       isCheck: false,
                       isAllin: false,
-                      isActive: !res.isStart && true,
+                      isActive: !res.isStart,
+                      isWatching: res.isStart,
                     },
                   ]),
                 });
