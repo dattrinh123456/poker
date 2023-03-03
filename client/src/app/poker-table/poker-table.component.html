@@ -3,14 +3,18 @@
     <div
       class="player"
       *ngFor="let item of players"
-      [ngClass]="{ active: item.isCall && isStart }"
+      [ngClass]="{ active: (item.isturn && isStart) || item.isWin }"
     >
       <div class="avatar">
-        <img [src]="'../../assets/images/' + item.avatar" alt="" />
+        <img *ngIf="item?.avatar" [src]="'../../assets/images/' + item.avatar" alt="" />
       </div>
       {{ item.name }}
       <div class="card">
-        <app-card [cards]="item.cards"></app-card>
+        <app-card
+          [cards]="item.cards"
+          [hand]="room?.winner?.hand || []"
+          [isShow]="isShowResult"
+        ></app-card>
       </div>
     </div>
   </div>
@@ -18,53 +22,71 @@
     <app-card
       [cards]="cardShowOnTable"
       [isShow]="true"
-      *ngIf="isStart"
+      *ngIf="isStart || isShowResult"
+      [hand]="room?.winner?.hand || []"
     ></app-card>
     <h1 class="pot" *ngIf="isStart">{{ room.pot }} $</h1>
-    <button
-      class="btn button-5"
-      role="button"
-      (click)="start()"
-      *ngIf="!isStart && isHost"
-    >
-      Start
-    </button>
-    <button
-      class="btn button-5"
-      role="button"
-      (click)="exit()"
-      *ngIf="!isStart"
-    >
-      Exit
-    </button>
+    <h1 *ngIf="isShowResult">{{ user.isWin ? "you win" : "you lose" }}</h1>
+    <div style="display: flex; gap: 1em">
+      <button
+        class="btn button-5"
+        role="button"
+        (click)="start()"
+        *ngIf="!isStart && isHost"
+      >
+        Start
+      </button>
+      <button
+        class="btn button-5"
+        role="button"
+        (click)="exit()"
+        *ngIf="!isStart"
+      >
+        Exit
+      </button>
+    </div>
   </div>
-  <div *ngIf="isShowResult">{{ user.isWin ? "you win" : "you lose" }}</div>
-  <div class="user">
+  <div class="user" [ngClass]="{ winner: user.isWin }">
     <p>{{ user.name }}</p>
     <div class="box">
       <div class="avatar">
         <img [src]="'../../assets/images/' + user.avatar" alt="" />
       </div>
-      <app-card [isShow]="true" [isFlip]="true" [cards]="user.cards"></app-card>
+      <app-card
+        [isShow]="true"
+        [isFlip]="true"
+        [cards]="user.cards"
+        [hand]="room?.winner?.hand || []"
+      ></app-card>
     </div>
-    <div class="slider" *ngIf="user.isCall && isStart">
+    <div class="slider" *ngIf="user.isTurn && isStart">
       <p-slider
         [(ngModel)]="coinRaise"
         [max]="room.coins"
         [min]="min"
+        (onSlideEnd)="sliderChange()"
       ></p-slider>
       <span style="float: right">{{ coinRaise }} || {{ room.coins }}</span>
     </div>
-    <div class="call" *ngIf="user.isCall && isStart">
+    <div class="call" *ngIf="user.isTurn && isStart">
       <button
         class="btn"
         role="button"
         *ngFor="let item of buttons"
         (click)="call(item.type)"
         [disabled]="item.isDisable"
+        [ngClass]="{ isDisable: item.isDisable }"
       >
         {{ item.type }}
       </button>
+      <button (click)="call('fold')" class="btn" role="button">fold</button>
     </div>
   </div>
+  <div class="detail" (click)="visibleDetail = !visibleDetail">
+    <i class="pi pi-users"></i>
+  </div>
 </div>
+
+<p-dialog [(visible)]="visibleDetail"  [baseZIndex]="10000" [header]="'Room ' + room.roomname">
+  <app-poker-room-detail [room]="room" [user]="user"></app-poker-room-detail>
+</p-dialog>

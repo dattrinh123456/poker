@@ -1,8 +1,13 @@
 .card{
   display: flex;
   justify-content: space-between;
+  gap: 1em;
   img{
     width: 100%;
     height: 4em;
+  }
+  .isActive{
+    border: 6px solid peru;
+    border-radius: 8px;
   }
 }

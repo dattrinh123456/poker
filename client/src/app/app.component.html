@@ -2,6 +2,7 @@
   <h1 class="logo" (click)="backToHome()">
     D'Poker
     <div class="user" *ngIf="user.avatar">
+      {{user.name}}
       <img [src]="'../assets/images/' + user.avatar" (click)="logout()" />
     </div>
   </h1>

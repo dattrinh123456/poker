@@ -62,14 +62,15 @@ function convertNumToCard(num) {
 
 function checkWinner(winner, payload) {
   let users = [];
+  let nextTurnForNewRound = 0;
   for (let i = 0; i < payload.users.length; i++) {
+    console.log(payload.users[i].cards.join(","), winner.cards);
     if (payload.users[i].cards.join(",") == winner.cards) {
-      console.log(payload.users[i]);
+      nextTurnForNewRound = i;
+      payload.users[i].isWin = true;
       payload.users[i].allCoins += payload.pot;
-    } else {
-      console.log(payload.users[i]);
-      payload.users[i].allCoins -= payload.pot;
     }
+
     users.push(payload.users[i]);
   }
   let newPayload = {
@@ -78,6 +79,7 @@ function checkWinner(winner, payload) {
     isShowResult: 1,
     users: JSON.stringify(users),
     winner: JSON.stringify(winner),
+    userTurn: nextTurnForNewRound,
   };
   return newPayload;
 }

@@ -1,0 +1,24 @@
+@import url('../../assets/common/button.scss');
+.dialog-detail-room {
+  width: 20em;
+  text-align: center;
+  background: #cbc2c2;
+  padding: 1em;
+  display: grid;
+  height: auto;
+  gap: 1em;
+}
+
+::ng-deep .p-dialog .p-dialog-header{
+  background: #cbc2c2;
+  padding: 1em;
+}
+
+::ng-deep .p-dialog {
+  box-shadow: none;
+
+ .p-dialog-content {
+    padding: 0;
+    background-color: transparent;
+  }
+}

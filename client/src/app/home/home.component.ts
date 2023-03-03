@@ -24,6 +24,12 @@ import { HomeService } from './home.service';
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   display: boolean = false;
   display2: boolean = false;
+  displayDetail: boolean = false;
+  rooms: Array<any> = [];
+  user: any = {};
+  passwordJoinRoom: string = '';
+  roomIsChosen: any = {};
+  notifier = new Subject();
   formGroup = new FormGroup({
     roomname: new FormControl(''),
     password: new FormControl(''),
@@ -37,11 +43,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     isShowResult: new FormControl(0),
     winner: new FormControl(JSON.stringify([])),
   });
-  rooms: Array<any> = [];
-  user: any = {};
-  passwordJoinRoom: string = '';
-  roomIsChosen: any = {};
-  notifier = new Subject();
+
   constructor(
     private homeService: HomeService,
     private toastService: ToastService,
@@ -110,51 +112,74 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   roomClicked(room: any) {
+    this.roomIsChosen = room;
+    if (room.users.length >= 10) {
+      this.toastService.showWarn(
+        'This room is full. You need to find another room!'
+      );
+    }
+    if (!room.password) {
+      this.joinRoom();
+    } else {
+      this.display2 = !this.display2;
+    }
     if (room.createdBy === this.user.id) {
       this.passwordJoinRoom = room.password;
     }
-    this.display2 = !this.display2;
-    this.roomIsChosen = room;
   }
 
   joinRoom() {
-    if (this.passwordJoinRoom == this.roomIsChosen.password) {
+    if (
+      this.passwordJoinRoom == this.roomIsChosen.password ||
+      !this.roomIsChosen.password
+    ) {
       this.homeService
         .getSingleRoom(this.roomIsChosen.id)
         .pipe(
           switchMap((res: any) => {
-            return this.homeService.updateRoom(res.id, {
-              users: JSON.stringify([
-                ...res.users,
-                {
-                  id: this.user.id,
-                  name: this.user.name,
-                  cards: ['', ''],
-                  avatar: this.user.avatar,
-                  isCall: false,
-                  coins: 0,
-                  isFold: false,
-                  isWin: false,
-                  allCoins: 0,
-                  coinsForRound: 0,
-                  isCheck: false,
-                  isAllin: false,
-                },
-              ]),
-            });
+            let indexUserinRoom = res.users.findIndex(
+              (x: any) => x.id == this.user.id
+            );
+            if (indexUserinRoom >= 0) {
+              res.users[indexUserinRoom].isActive = !res.isStart;
+            }
+            return indexUserinRoom >= 0
+              ? this.homeService.updateRoom(res.id, {
+                  users: JSON.stringify([...res.users]),
+                })
+              : this.homeService.updateRoom(res.id, {
+                  users: JSON.stringify([
+                    ...res.users,
+                    {
+                      id: this.user.id,
+                      name: this.user.name,
+                      cards: ['', ''],
+                      avatar: this.user.avatar,
+                      isCall: false,
+                      coins: 0,
+                      isFold: false,
+                      isWin: false,
+                      allCoins: 0,
+                      isCheck: false,
+                      isAllin: false,
+                      isActive: !res.isStart && true,
+                    },
+                  ]),
+                });
           })
         )
         .subscribe((res: any) => {
-          this.updateRoomUsers();
+          this.router.navigateByUrl('room/' + this.roomIsChosen.id);
         });
     } else this.toastService.showError('The password is wrong!');
   }
 
-  deleteRoom(room: any) {
-    this.homeService.deleteRoom(room.id).subscribe((res) => {
-      this.rooms = this.rooms.filter((x) => x.id !== room.id);
+  deleteRoom() {
+    this.homeService.deleteRoom(this.roomIsChosen.id).subscribe((res) => {
+      this.rooms = this.rooms.filter((x) => x.id !== this.roomIsChosen.id);
       this.toastService.showSuccess();
       this.appService.fetchRooms();
+      this.displayDetail = !this.displayDetail;
     });
   }
 
@@ -171,10 +196,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.formGroup.reset();
   }
 
-  updateRoomUsers() {
-    this.router.navigateByUrl('room/' + this.roomIsChosen.id);
-  }
-
   checkHeight() {
     if (!window.location.href.includes('home')) return;
     let roomsClass = document.getElementsByClassName(
@@ -187,5 +208,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       roomsClass.style.height = '100%';
       roomsClass.style.overflowY = 'scroll';
     }
+  }
+
+  openDeatilDialog(room: any) {
+    this.displayDetail = !this.displayDetail;
+    this.roomIsChosen = room;
+    console.log(this.roomIsChosen);
   }
 }

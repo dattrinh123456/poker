@@ -9,9 +9,8 @@ export class CardComponent implements OnInit {
   @Input() cards: String[] = [];
   @Input() isFlip: boolean = false;
   @Input() isShow: boolean = false;
-
+  @Input() hand: Array<any> = [];
   constructor() {}
 
   ngOnInit(): void {}
-
 }

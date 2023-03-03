@@ -1,7 +1,10 @@
-<div class="card" (click)="isFlip && isShow = !isShow">
+<div class="card" (click)="isFlip && (isShow = !isShow)">
   <img
     *ngFor="let card of cards"
-    [src]="'../../assets/cards/' + (isShow && card  ? card : 'back-card') + '.png'"
+    [src]="
+      '../../assets/cards/' + (isShow && card ? card : 'back-card') + '.png'
+    "
     [alt]="card"
+    [ngClass]="{ isActive: hand.includes(card) }"
   />
 </div>

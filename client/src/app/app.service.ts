@@ -16,12 +16,10 @@ export class AppService {
   }
 
   joinRoom(id: string) {
-    console.log('join id', id);
     this.socket.emit('joinroom', id);
   }
 
   leftRoom(id: string) {
-    console.log('left id', id);
     this.socket.emit('leftroom', id);
   }
 
@@ -32,7 +30,6 @@ export class AppService {
   onNewMessage() {
     return new Observable((observer) => {
       this.socket.on('message', (msg) => {
-        console.log('message', msg);
         observer.next(msg);
       });
     });

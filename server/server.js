@@ -57,7 +57,6 @@ app.post("/update/:table/:id", async function (req, res) {
 
 app.delete("/delete/:table/:id", async function (req, res) {
   let { table, id } = req.params;
-  console.log(req.params);
   let data = await deleteData(table, id);
   res.json(data);
 });
@@ -66,9 +65,8 @@ const ROOM = "Room-";
 
 io.on("connection", function (socket) {
   console.log("socketid", socket.id);
-
   socket.on("start", function (payload) {
-    let cards = utils.shuffle();
+    let cards = utils.shuffle().slice(0, payload.users.length * 2 + 10);
     let newPayload = {
       users: JSON.stringify(
         payload.users.map((user, index) => ({
@@ -76,12 +74,12 @@ io.on("connection", function (socket) {
           cards: [cards.shift(), cards.shift()],
           coins: 0,
           isWin: false,
-          isCall: false,
+          isTurn: false,
           isFold: false,
           allCoins: user.allCoins,
-          coinsForRound: 0,
           isCheck: false,
           isAllin: false,
+          isActive: user.isActive,
         }))
       ),
       cardsHaveChosen: JSON.stringify(cards),
@@ -90,8 +88,9 @@ io.on("connection", function (socket) {
       isShowResult: 0,
       coinsForTurn: 0,
       pot: 0,
-      userTurn: 0,
+      userTurn: payload.userTurn || 0,
       winner: JSON.stringify([]),
+      countTurn: payload.userTurn || 0,
     };
     updateData("rooms", newPayload, payload.id).then((res) => {
       io.in(ROOM + payload.id).emit("message", "start");
@@ -99,43 +98,48 @@ io.on("connection", function (socket) {
   });
 
   socket.on("joinroom", (roomdid) => {
-    console.log("join id", roomdid);
     socket.join(ROOM + roomdid);
     io.in(ROOM + roomdid).emit("message", "join");
   });
 
-  socket.on("leftroom", (roomdid) => {
-    console.log("left", roomdid);
+  socket.on("leftroom", async (roomdid) => {
     socket.leave(ROOM + roomdid);
     io.in(ROOM + roomdid).emit("message", "left");
   });
 
   socket.on("nextround", function ({ type, payload }) {
     payload = utils.convertStringToArray(payload);
-
+    let { countTurn } = payload;
     if (type == "raise" || type == "call") {
       for (let i = 0; i < payload.users.length; i++) {
         payload.users[i].isCheck = false;
       }
     }
 
-    let isRaised =
-      payload.users.filter((x) => x.coins !== payload.users[0].coins).length >
-      0;
+    var nextTurn =
+      payload.userTurn + 1 == payload.users.length ? 0 : payload.userTurn + 1;
+    while (
+      payload.users[nextTurn].isFold ||
+      !payload.users[nextTurn].isActive
+    ) {
+      nextTurn = nextTurn + 1 == payload.users.length ? 0 : nextTurn + 1;
+    }
+    var moveNextUser = false;
+    if (nextTurn == countTurn) {
+      var isAllUsersFold = payload.users.filter((x) => !x.isFold).length == 1;
 
-    let isStatusCheckSame =
-      payload.users.filter((x) => x.isCheck !== payload.users[0].isCheck)
-        .length == 0;
+      var usersUnFold = payload.users.filter((x) => !x.isFold && x.isActive);
 
-    let isAllUsersFold = payload.users.filter((x) => !x.isFold).length == 1;
+      var isStatusAllin =
+        usersUnFold.filter((x) => x.isAllin).length == usersUnFold.length;
 
-    let isStatusAllin =
-      payload.users.filter((x) => x.isAllin).length == payload.users.length;
-
+      moveNextUser =
+        usersUnFold.filter((x) => x.coins == usersUnFold[0].coins).length ==
+        usersUnFold.length;
+    }
     if (isAllUsersFold) {
-      ///check all users fold except 1 left
       let indexWinner = payload.users.findIndex((x) => !x.isFold);
-      newPayload = utils.checkWinner(
+      let newPayload = utils.checkWinner(
         { cards: payload.users[indexWinner].cards.join(",") },
         payload
       );
@@ -145,9 +149,10 @@ io.on("connection", function (socket) {
     } else if (isStatusAllin) {
       payload.cardShowOnTable = [
         ...payload.cardShowOnTable,
-        payload.cardsHaveChosen.slice(0, 5 - payload.cardShowOnTable.length),
+        ...payload.cardsHaveChosen.slice(0, 5 - payload.cardShowOnTable.length),
       ];
       let userCards = payload.users
+        .filter((x) => !x.isFold && x.isActive)
         .map((x) => `pc[]=${x.cards.join(",")}`)
         .join("&");
       let url =
@@ -160,21 +165,15 @@ io.on("connection", function (socket) {
           io.in(ROOM + payload.id).emit("message", "endround");
         });
       });
-    } else if (
-      // check new turn
-      isStatusAllin &&
-      isStatusCheckSame &&
-      !isRaised &&
-      payload.cardShowOnTable.length < 5
-    ) {
+    } else if (moveNextUser && payload.cardShowOnTable.length < 5) {
       let users = payload.users.map((x) => {
-        x.coinsForRound += x.coins;
         x.coins = 0;
         x.isCheck = false;
         return x;
       });
+
       let newPayload = {
-        userTurn: 0,
+        userTurn: nextTurn,
         pot: payload.pot,
         cardShowOnTable: JSON.stringify([
           ...payload.cardShowOnTable,
@@ -190,17 +189,14 @@ io.on("connection", function (socket) {
         ),
         coinsForTurn: 0,
         users: JSON.stringify(users),
+        countTurn: nextTurn,
       };
       updateData("rooms", newPayload, payload.id).then((res) => {
         io.in(ROOM + payload.id).emit("message", "nextround");
       });
-    } else if (
-      isStatusAllin &&
-      isStatusCheckSame &&
-      !isRaised &&
-      payload.cardShowOnTable.length == 5
-    ) {
+    } else if (moveNextUser && payload.cardShowOnTable.length == 5) {
       let userCards = payload.users
+        .filter((x) => !x.isFold && x.isActive)
         .map((x) => `pc[]=${x.cards.join(",")}`)
         .join("&");
       let url =
@@ -214,18 +210,12 @@ io.on("connection", function (socket) {
         });
       });
     } else {
-      let nextTurn =
-        payload.userTurn + 1 > payload.users.length - 1
-          ? 0
-          : payload.userTurn + 1;
-      while (payload.users[nextTurn].isFold) {
-        nextTurn++;
-      }
       let newPayload = {
         userTurn: nextTurn,
         pot: payload.pot,
         coinsForTurn: payload.coinsForTurn,
         users: JSON.stringify(payload.users),
+        countTurn: type == "fold" ? nextTurn : countTurn,
       };
       updateData("rooms", newPayload, payload.id).then((res) => {
         io.in(ROOM + payload.id).emit("message", "nextround");
@@ -234,7 +224,6 @@ io.on("connection", function (socket) {
   });
 
   socket.on("fecthRoom", () => {
-    console.log("fetchroom");
     io.emit("message", "fetchroom");
   });
 });

@@ -28,7 +28,14 @@
         text-transform: uppercase;
         width: 5em;
       }
+      .isDisable {
+        background-color: grey;
+      }
     }
+  }
+  .winner {
+    border: 7px solid #f59e0b;
+    border-radius: 8px;
   }
 
   .show-card {
@@ -37,7 +44,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 5em;
+    gap: 1em;
     color: bisque;
     .btn {
       width: 6em;
@@ -64,6 +71,7 @@
 
     .active {
       border: 7px solid #f59e0b;
+      border-radius: 8px;
     }
   }
   .avatar {
@@ -72,6 +80,15 @@
       width: 100px;
       height: 100px;
     }
+  }
+
+  .detail{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #58a185;
+    padding: 1em;
+    border-radius: 10px;
   }
 }
 

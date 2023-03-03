@@ -16,7 +16,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { SliderModule } from 'primeng/slider';
 import { MenuModule } from 'primeng/menu';
-
+import { TableModule } from 'primeng/table';
+import { SidebarModule } from 'primeng/sidebar';
+import { PokerRoomDetailComponent } from './poker-room-detail/poker-room-detail.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,6 +26,7 @@ import { MenuModule } from 'primeng/menu';
     HomeComponent,
     LoginPageComponent,
     CardComponent,
+    PokerRoomDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -37,6 +40,8 @@ import { MenuModule } from 'primeng/menu';
     ConfirmDialogModule,
     SliderModule,
     MenuModule,
+    TableModule,
+    SidebarModule,
   ],
   providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent],

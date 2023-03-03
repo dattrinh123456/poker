@@ -4,12 +4,8 @@
     <div class="room" *ngFor="let item of rooms">
       {{ item.roomname }}
       <button class="btn access" (click)="roomClicked(item)">Join</button>
-      <button
-        class="btn access"
-        *ngIf="user.id == item.createdBy"
-        (click)="deleteRoom(item)"
-      >
-        Delete
+      <button class="btn access" (click)="openDeatilDialog(item)">
+        Detail
       </button>
     </div>
   </div>
@@ -37,7 +33,7 @@
       class="input"
       formControlName="password"
     />
-    <span>Default coins for Each Round : {{formGroup.value.coins}} </span>
+    <span>Default coins for Each Round : {{ formGroup.value.coins }} </span>
     <p-slider formControlName="coins" [min]="10" [max]="1000"></p-slider>
     <div class="footer">
       <button
@@ -75,4 +71,11 @@
       </button>
     </div>
   </div>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="displayDetail"
+  [header]="'Room ' + roomIsChosen.roomname"
+>
+  <app-poker-room-detail [room]="roomIsChosen" [user]="user" [isShowDeleteBtn]="true" (deleteClicked)="deleteRoom()"></app-poker-room-detail>
 </p-dialog>
