@@ -3,18 +3,14 @@ import {
   ActivatedRouteSnapshot,
   CanActivate,
   Router,
-  RouterStateSnapshot,
+  RouterStateSnapshot
 } from '@angular/router';
 import {
-  catchError,
   combineLatest,
   map,
-  Observable,
-  of,
-  switchMap,
+  Observable
 } from 'rxjs';
 import { HomeService } from './home/home.service';
-import { LoginPageComponent } from './login-page/login-page.component';
 import { LoginPageService } from './login-page/login-page.service';
 
 @Injectable({

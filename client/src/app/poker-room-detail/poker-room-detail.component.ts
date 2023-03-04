@@ -1,6 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { HomeService } from '../home/home.service';
-import { ToastService } from '../toast.service';
 
 @Component({
   selector: 'app-poker-room-detail',

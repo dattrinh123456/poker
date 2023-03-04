@@ -77,10 +77,9 @@ io.on("connection", function (socket) {
           isTurn: false,
           isFold: false,
           allCoins: user.allCoins,
-          isCheck: false,
           isAllin: false,
           isActive: user.isActive || user.isWatching,
-          isWatching : false
+          isWatching: false,
         }))
       ),
       cardsHaveChosen: JSON.stringify(cards),
@@ -110,12 +109,7 @@ io.on("connection", function (socket) {
 
   socket.on("nextround", function ({ type, payload }) {
     payload = utils.convertStringToArray(payload);
-    let { countTurn } = payload;
-    if (type == "raise" || type == "call") {
-      for (let i = 0; i < payload.users.length; i++) {
-        payload.users[i].isCheck = false;
-      }
-    }
+    let { countTurn, pot, coinsForTurn } = payload;
 
     var nextTurn =
       payload.userTurn + 1 == payload.users.length ? 0 : payload.userTurn + 1;
@@ -125,20 +119,18 @@ io.on("connection", function (socket) {
     ) {
       nextTurn = nextTurn + 1 == payload.users.length ? 0 : nextTurn + 1;
     }
-    var moveNextUser = false;
+    var isNextTurn = false;
+    var usersUnFold = payload.users.filter((x) => !x.isFold && x.isActive);
+
     if (nextTurn == countTurn) {
-      var isAllUsersFold = payload.users.filter((x) => !x.isFold).length == 1;
-
-      var usersUnFold = payload.users.filter((x) => !x.isFold && x.isActive);
-
       var isStatusAllin =
         usersUnFold.filter((x) => x.isAllin).length == usersUnFold.length;
 
-      moveNextUser =
+      isNextTurn =
         usersUnFold.filter((x) => x.coins == usersUnFold[0].coins).length ==
         usersUnFold.length;
     }
-    if (isAllUsersFold) {
+    if (usersUnFold.length == 1) {
       let indexWinner = payload.users.findIndex((x) => !x.isFold);
       let newPayload = utils.checkWinner(
         { cards: payload.users[indexWinner].cards.join(",") },
@@ -166,16 +158,15 @@ io.on("connection", function (socket) {
           io.in(ROOM + payload.id).emit("message", "endround");
         });
       });
-    } else if (moveNextUser && payload.cardShowOnTable.length < 5) {
+    } else if (isNextTurn && payload.cardShowOnTable.length < 5) {
       let users = payload.users.map((x) => {
         x.coins = 0;
-        x.isCheck = false;
         return x;
       });
 
       let newPayload = {
         userTurn: nextTurn,
-        pot: payload.pot,
+        pot: pot,
         cardShowOnTable: JSON.stringify([
           ...payload.cardShowOnTable,
           ...payload.cardsHaveChosen.slice(
@@ -195,7 +186,7 @@ io.on("connection", function (socket) {
       updateData("rooms", newPayload, payload.id).then((res) => {
         io.in(ROOM + payload.id).emit("message", "nextround");
       });
-    } else if (moveNextUser && payload.cardShowOnTable.length == 5) {
+    } else if (isNextTurn && payload.cardShowOnTable.length == 5) {
       let userCards = payload.users
         .filter((x) => !x.isFold && x.isActive)
         .map((x) => `pc[]=${x.cards.join(",")}`)
@@ -213,10 +204,10 @@ io.on("connection", function (socket) {
     } else {
       let newPayload = {
         userTurn: nextTurn,
-        pot: payload.pot,
-        coinsForTurn: payload.coinsForTurn,
+        pot: pot,
+        coinsForTurn: coinsForTurn,
         users: JSON.stringify(payload.users),
-        countTurn: type == "fold" ? nextTurn : countTurn,
+        countTurn: countTurn >= 0 ? countTurn : nextTurn,
       };
       updateData("rooms", newPayload, payload.id).then((res) => {
         io.in(ROOM + payload.id).emit("message", "nextround");

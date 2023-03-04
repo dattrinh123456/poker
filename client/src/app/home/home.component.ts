@@ -1,16 +1,8 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  combineLatest,
-  map,
-  of,
-  Subject,
-  Subscription,
-  switchMap,
-  takeUntil,
-} from 'rxjs';
-import { shuffle, unsubscribe } from 'src/assets/common/utils';
+import { combineLatest, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { unsubscribe } from 'src/assets/common/utils';
 import { AppService } from '../app.service';
 import { LoginPageService } from '../login-page/login-page.service';
 import { ToastService } from '../toast.service';
@@ -104,16 +96,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       createdBy: this.user.id,
     };
 
-    this.homeService.createRoom(payload).subscribe((res) => {
-      this.rooms.push(res);
-      this.resetForm();
-      this.appService.fetchRooms();
-    });
+    this.homeService
+      .createRoom(payload)
+      .pipe(takeUntil(this.notifier))
+      .subscribe((res) => {
+        this.rooms.push(res);
+        this.resetForm();
+        this.appService.fetchRooms();
+      });
   }
 
   roomClicked(room: any) {
     this.roomIsChosen = room;
-    if (room.users.length >= 10) {
+    if (
+      room.users.filter((x: any) => x.isActive || x.isWatchingf).length >= 10
+    ) {
       this.toastService.showWarn(
         'This room is full. You need to find another room!'
       );
@@ -142,7 +139,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             );
             return indexUserinRoom >= 0
               ? this.homeService.updateRoom(res.id, {
-                  users: JSON.stringify([...res.users]),
+                  users: JSON.stringify([
+                    ...res.users.map((x: any, index: number) => {
+                      if (x.id == res.users[indexUserinRoom].id) {
+                        x.isActive = !res.isStart;
+                        x.isWatching = res.isStart;
+                      }
+                      return x;
+                    }),
+                  ]),
                 })
               : this.homeService.updateRoom(res.id, {
                   users: JSON.stringify([
@@ -157,14 +162,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                       isFold: false,
                       isWin: false,
                       allCoins: 0,
-                      isCheck: false,
                       isAllin: false,
                       isActive: !res.isStart,
                       isWatching: res.isStart,
                     },
                   ]),
                 });
-          })
+          }),
+          takeUntil(this.notifier)
         )
         .subscribe((res: any) => {
           this.router.navigateByUrl('room/' + this.roomIsChosen.id);

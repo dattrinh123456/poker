@@ -6,7 +6,11 @@
       [ngClass]="{ active: (item.isturn && isStart) || item.isWin }"
     >
       <div class="avatar">
-        <img *ngIf="item?.avatar" [src]="'../../assets/images/' + item.avatar" alt="" />
+        <img
+          *ngIf="item?.avatar"
+          [src]="'../../assets/images/' + item.avatar"
+          alt=""
+        />
       </div>
       {{ item.name }}
       <div class="card">
@@ -26,7 +30,7 @@
       [hand]="room?.winner?.hand || []"
     ></app-card>
     <h1 class="pot" *ngIf="isStart">{{ room.pot }} $</h1>
-    <h1 *ngIf="isShowResult">{{ user.isWin ? "you win" : "you lose" }}</h1>
+    <h1 *ngIf="isShowResult && user.isActive">{{ user.isWin ? "you win" : "you lose" }}</h1>
     <div style="display: flex; gap: 1em">
       <button
         class="btn button-5"
@@ -46,8 +50,11 @@
       </button>
     </div>
   </div>
-  <div class="user" [ngClass]="{ winner: user.isWin }">
-    <p>{{ user.name }}</p>
+  <div class="user" [ngClass]="{ winner: user.isWin }" *ngIf="user.isActive">
+    <div class="info">
+      <p>{{ user.name }} || {{ user.allCoins }}</p>
+      <p>Raised: {{ user.coins }}</p>
+    </div>
     <div class="box">
       <div class="avatar">
         <img [src]="'../../assets/images/' + user.avatar" alt="" />
@@ -87,6 +94,10 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="visibleDetail"  [baseZIndex]="10000" [header]="'Room ' + room.roomname">
+<p-dialog
+  [(visible)]="visibleDetail"
+  [baseZIndex]="10000"
+  [header]="'Room ' + room.roomname"
+>
   <app-poker-room-detail [room]="room" [user]="user"></app-poker-room-detail>
 </p-dialog>

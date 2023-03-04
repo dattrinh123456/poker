@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
+import { Subject, takeUntil } from 'rxjs';
+import { unsubscribe } from 'src/assets/common/utils';
 import { LoginPageService } from './login-page/login-page.service';
 
 @Component({
@@ -8,9 +10,10 @@ import { LoginPageService } from './login-page/login-page.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   user: any;
   items: MenuItem[] = [];
+  notifier = new Subject<any>();
   constructor(
     private router: Router,
     private loginService: LoginPageService,
@@ -18,10 +21,17 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loginService.getUser().subscribe((res) => {
-      this.user = res;
-      this.items = [{ label: res.name }, { label: 'logout' }];
-    });
+    this.loginService
+      .getUser()
+      .pipe(takeUntil(this.notifier))
+      .subscribe((res) => {
+        this.user = res;
+        this.items = [{ label: res.name }, { label: 'logout' }];
+      });
+  }
+
+  ngOnDestroy(): void {
+    unsubscribe(this.notifier);
   }
 
   backToHome() {
@@ -30,11 +40,10 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.confirmationService.confirm({
-      message: 'Are you sure that you want to perform this action?',
       accept: () => {
         //Actual logic to perform a confirmation
-        localStorage.removeItem('user')
-        this.router.navigateByUrl('login')
+        localStorage.removeItem('user');
+        this.router.navigateByUrl('login');
       },
     });
   }

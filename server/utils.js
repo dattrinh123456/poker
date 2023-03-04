@@ -64,7 +64,6 @@ function checkWinner(winner, payload) {
   let users = [];
   let nextTurnForNewRound = 0;
   for (let i = 0; i < payload.users.length; i++) {
-    console.log(payload.users[i].cards.join(","), winner.cards);
     if (payload.users[i].cards.join(",") == winner.cards) {
       nextTurnForNewRound = i;
       payload.users[i].isWin = true;

@@ -8,7 +8,7 @@ import { CardComponent } from './card/card.component';
 import { PokerTableComponent } from './poker-table/poker-table.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -19,6 +19,8 @@ import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { SidebarModule } from 'primeng/sidebar';
 import { PokerRoomDetailComponent } from './poker-room-detail/poker-room-detail.component';
+import { LoadingComponent } from './loading/loading.component';
+import { Interceptor } from './http-interceptor.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -27,6 +29,7 @@ import { PokerRoomDetailComponent } from './poker-room-detail/poker-room-detail.
     LoginPageComponent,
     CardComponent,
     PokerRoomDetailComponent,
+    LoadingComponent,
   ],
   imports: [
     BrowserModule,
@@ -43,7 +46,11 @@ import { PokerRoomDetailComponent } from './poker-room-detail/poker-room-detail.
     TableModule,
     SidebarModule,
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [
+    MessageService,
+    ConfirmationService,
+    { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

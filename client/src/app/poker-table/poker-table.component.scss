@@ -12,6 +12,10 @@
     padding: 0.5em;
     margin: auto;
     width: 23em;
+    .info{
+      display: flex;
+      justify-content: space-between;
+    }
     .box {
       display: flex;
       justify-content: space-between;

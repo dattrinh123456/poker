@@ -14,6 +14,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
 } from 'rxjs';
 import { unsubscribe } from 'src/assets/common/utils';
 import { AppService } from '../app.service';
@@ -66,18 +67,10 @@ export class PokerTableComponent implements OnInit, OnDestroy {
     private loginService: LoginPageService,
     private router: Router,
     private toastService: ToastService
-  ) {
-    this.room.id = this.route.snapshot.paramMap.get('id') || '';
-    // router.events.pipe(takeUntil(this.notifier)).subscribe((event: any) => {
-    //   if (event instanceof NavigationEnd) {
-    //     if (!event.url.includes('room')) {
-    //       this.updateRoom();
-    //     }
-    //   }
-    // });
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.room.id = this.route.snapshot.paramMap.get('id') || '';
     this.appService.joinRoom(this.room.id);
 
     this.appService
@@ -118,10 +111,9 @@ export class PokerTableComponent implements OnInit, OnDestroy {
             isFold: x.isFold,
             isWin: x.isWin,
             allCoins: x.allCoins,
-            isCheck: x.isCheck,
             isAllin: x.isAllin,
             isActive: x.isActive,
-            isWatching: x.isWatching
+            isWatching: x.isWatching,
           };
           if (x.id !== user.id) {
             this.players.push(u);
@@ -140,7 +132,6 @@ export class PokerTableComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     console.log(1);
     this.updateRoom();
-    unsubscribe(this.notifier);
   }
 
   start() {
@@ -165,27 +156,27 @@ export class PokerTableComponent implements OnInit, OnDestroy {
       }
       return x;
     });
-    var nextTurn = this.room.countTurn;
     if (this.room.isStart) {
-      nextTurn = this.room.userTurn;
-      while (users[nextTurn].isFold || !users[nextTurn].isActive) {
-        nextTurn = nextTurn + 1 == users.length ? 0 : nextTurn + 1;
-      }
+      this.checkCountTurn();
     }
 
     this.homeService
       .updateRoom(this.room.id, {
         users: JSON.stringify([...users]),
-        countTurn: nextTurn,
       })
-      .pipe(debounceTime(2000), distinctUntilChanged())
+      .pipe(
+        debounceTime(2000),
+        distinctUntilChanged(),
+        takeUntil(this.notifier)
+      )
       .subscribe((res) => {
+        this.appService.nextMove('fold', this.room);
         this.appService.leftRoom(this.room.id);
+        unsubscribe(this.notifier);
       });
   }
 
   call(type: any) {
-    this.user.isCheck = false;
     if (type == 'all in') {
       this.coinRaise = this.room.coins;
     }
@@ -198,12 +189,16 @@ export class PokerTableComponent implements OnInit, OnDestroy {
 
     if (type == 'fold') {
       this.user.isFold = true;
+      this.checkCountTurn();
     } else if (type == 'call') {
       this.room.pot += this.coinRaise;
       this.user.coins += this.coinRaise;
       this.user.allCoins -= this.coinRaise;
     } else if (type == 'raise') {
-      this.room.coinsForTurn = this.coinRaise;
+      this.room.coinsForTurn = Math.max(
+        this.coinRaise,
+        ...this.room.users.map((x: any) => x.coins)
+      );
       this.room.pot += this.coinRaise;
       this.user.coins += this.coinRaise;
       this.user.allCoins -= this.coinRaise;
@@ -213,10 +208,7 @@ export class PokerTableComponent implements OnInit, OnDestroy {
       this.user.coins += this.room.coins;
       this.user.isAllin = true;
       this.user.allCoins -= this.room.coins;
-    } else if (type == 'check') {
-      this.user.isCheck = true;
     }
-
     for (let i = 0; i < this.room.users.length; i++) {
       if (this.room.users[i].id == this.user.id) {
         this.room.users[i] = this.user;
@@ -254,6 +246,15 @@ export class PokerTableComponent implements OnInit, OnDestroy {
         x.isDisable = false;
         return x;
       });
+    }
+  }
+
+  checkCountTurn() {
+    if (
+      this.room.countTurn ==
+      this.room.users.findIndex((x: any) => x.id == this.user.id)
+    ) {
+      this.room.countTurn = -1;
     }
   }
 }

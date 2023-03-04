@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { getCard } from '../../assets/common/utils';
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
