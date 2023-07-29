@@ -4,3 +4,4 @@
 + Step 2: After that you need to update the .env file 
 
 Finally, Run server and client
+...
